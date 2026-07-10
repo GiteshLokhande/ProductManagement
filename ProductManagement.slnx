@@ -6,4 +6,5 @@
   <Project Path="tests/ProductManagement.API.Tests/ProductManagement.API.Tests.csproj" />
   <Project Path="tests/ProductManagement.Application.Tests/ProductManagement.Application.Tests.csproj" />
   <Project Path="tests/ProductManagement.Infrastructure.Tests/ProductManagement.Infrastructure.Tests.csproj" />
+  <Project Path="tests/ProductManagement.IntegrationTests/ProductManagement.IntegrationTests.csproj" Id="f86f8b38-81b3-4d58-8798-d77289c69527" />
 </Solution>

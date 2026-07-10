@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductManagement.Application.DTOs;
 using ProductManagement.Application.Interfaces;
+using Asp.Versioning;
 
 namespace ProductManagement.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;

@@ -12,8 +12,8 @@ using ProductManagement.Infrastructure.Data;
 namespace ProductManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260707074049_AddIdentity")]
-    partial class AddIdentity
+    [Migration("20260707111705_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,10 @@ namespace ProductManagement.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ExpiryDate")
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsRevoked")

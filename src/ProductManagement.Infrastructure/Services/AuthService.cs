@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using ProductManagement.Application.DTOs;
 using ProductManagement.Application.Interfaces;
+using ProductManagement.Domain.Entities;
 using ProductManagement.Infrastructure.Identity;
+using ProductManagement.Infrastructure.Repositories;
+using ProductManagement.Infrastructure.Security;
 
 namespace ProductManagement.Infrastructure.Services
 {
@@ -13,17 +16,20 @@ namespace ProductManagement.Infrastructure.Services
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly JwtSettings _jwtSettings;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AuthService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IJwtTokenGenerator jwtTokenGenerator,
-            IOptions<JwtSettings> jwtSettings)
+            IOptions<JwtSettings> jwtSettings,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtTokenGenerator = jwtTokenGenerator;
             _jwtSettings = jwtSettings.Value;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
@@ -47,9 +53,25 @@ namespace ProductManagement.Infrastructure.Services
 
             var token = _jwtTokenGenerator.GenerateToken(authenticatedUser);
 
+            var refreshToken = RefreshTokenGenerator.Generate();
+
+            var refreshTokenEntity = new RefreshToken
+            {
+                Token = refreshToken,
+                UserId = user.Id,
+                CreatedOn = DateTime.UtcNow,
+                ExpiresOn = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false
+            };
+
+            await _unitOfWork.RefreshTokens.AddAsync(refreshTokenEntity);
+
+            await _unitOfWork.SaveChangesAsync();
+
             return new AuthResponseDto
             {
-                Token = token,
+                AccessToken = token,
+                RefreshToken = refreshToken,
                 Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes)
             };
         }
@@ -68,6 +90,58 @@ namespace ProductManagement.Infrastructure.Services
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new ValidationException(errors);
             }
+        }
+
+        public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
+        {
+            var refreshToken = await _unitOfWork.RefreshTokens.GetByTokenAsync(dto.RefreshToken);
+
+            if (refreshToken == null)
+                throw new UnauthorizedAccessException("Invalid refresh token.");
+
+            if (refreshToken.IsRevoked)
+                throw new UnauthorizedAccessException("Refresh token has been revoked.");
+
+            if (refreshToken.ExpiresOn <= DateTime.UtcNow)
+                throw new UnauthorizedAccessException("Refresh token has expired.");
+
+            var user = await _userManager.FindByIdAsync(refreshToken.UserId);
+
+            if (user == null)
+                throw new UnauthorizedAccessException("User not found.");
+
+            var authenticatedUser = new AuthenticatedUserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName!,
+                Email = user.Email!
+            };
+
+            var accessToken = _jwtTokenGenerator.GenerateToken(authenticatedUser);
+
+            var newRefreshToken = RefreshTokenGenerator.Generate();
+
+            refreshToken.IsRevoked = true;
+
+            var refreshTokenEntity = new RefreshToken
+            {
+                Token = newRefreshToken,
+                UserId = user.Id,
+                CreatedOn = DateTime.UtcNow,
+                ExpiresOn = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false
+            };
+
+            await _unitOfWork.RefreshTokens.AddAsync(refreshTokenEntity);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new AuthResponseDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = newRefreshToken,
+                Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes)
+            };
         }
     }
 }

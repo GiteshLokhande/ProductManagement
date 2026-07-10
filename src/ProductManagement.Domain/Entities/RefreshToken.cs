@@ -6,7 +6,9 @@
 
         public string Token { get; set; } = string.Empty;
 
-        public DateTime ExpiryDate { get; set; }
+        public DateTime CreatedOn { get; set; }
+
+        public DateTime ExpiresOn { get; set; }
 
         public bool IsRevoked { get; set; }
 

@@ -9,10 +9,15 @@ namespace ProductManagement.Infrastructure.Repositories
 
         public IProductRepository Products { get; }
 
-        public UnitOfWork(ApplicationDbContext context)
+        public IRefreshTokenRepository RefreshTokens { get; }
+
+        public UnitOfWork(ApplicationDbContext context,IProductRepository productRepository, IRefreshTokenRepository refreshTokenRepository)
         {
             _context = context;
-            Products = new ProductRepository(context);
+
+            Products = productRepository;
+
+            RefreshTokens = refreshTokenRepository;
         }
 
         public async Task<int> SaveChangesAsync()

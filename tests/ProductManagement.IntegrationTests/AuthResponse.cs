@@ -1,6 +1,6 @@
-﻿namespace ProductManagement.Application.DTOs
+﻿namespace ProductManagement.IntegrationTests
 {
-    public class AuthResponseDto
+    public class AuthResponse
     {
         public string AccessToken { get; set; } = string.Empty;
 

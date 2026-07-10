@@ -7,5 +7,6 @@ namespace ProductManagement.Application.Interfaces
         Task RegisterAsync(RegisterDto dto);
 
         Task<AuthResponseDto> LoginAsync(LoginDto dto);
+        Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto);
     }
 }

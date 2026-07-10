@@ -18,7 +18,13 @@ namespace ProductManagement.Infrastructure.Data.Configurations
             builder.Property(x => x.UserId)
                    .IsRequired();
 
-            builder.Property(x => x.ExpiryDate)
+            builder.Property(x => x.CreatedOn)
+                   .IsRequired();
+
+            builder.Property(x => x.ExpiresOn)
+                   .IsRequired();
+
+            builder.Property(x => x.IsRevoked)
                    .IsRequired();
         }
     }

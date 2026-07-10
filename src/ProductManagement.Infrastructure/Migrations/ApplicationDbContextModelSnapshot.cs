@@ -217,7 +217,10 @@ namespace ProductManagement.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ExpiryDate")
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresOn")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsRevoked")

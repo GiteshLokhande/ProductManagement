@@ -1,24 +1,44 @@
+using Asp.Versioning.ApiExplorer;
 using FluentValidation.AspNetCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using ProductManagement.API.Middleware;
 using ProductManagement.API.Services;
+using ProductManagement.API.Swagger;
 using ProductManagement.Application.Extensions;
 using ProductManagement.Application.Interfaces;
 using ProductManagement.Infrastructure.Extensions;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Services.AddControllers();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
+builder.Services
+    .AddApiVersioning(options =>
     {
-        Title = "Product Management API",
-        Version = "v1"
+        options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
     });
 
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+builder.Services.AddSwaggerGen(options =>
+{
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -59,7 +79,17 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+    });
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -72,3 +102,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}
