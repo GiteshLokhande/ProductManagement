@@ -10,4 +10,8 @@
     <Folder Include="Enums\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.3.11" />
+  </ItemGroup>
+
 </Project>

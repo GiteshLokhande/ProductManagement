@@ -6,6 +6,7 @@ using ProductManagement.Application.Interfaces;
 using ProductManagement.Application.Mappings;
 using ProductManagement.Application.Services;
 using ProductManagement.Domain.Entities;
+using ProductManagement.Domain.Events;
 using ProductManagement.Domain.Exceptions;
 using Xunit;
 
@@ -18,11 +19,14 @@ namespace ProductManagement.Application.Tests.Services
         private readonly Mock<IProductRepository> _productRepositoryMock;
         private readonly IMapper _mapper;
         private readonly ProductService _productService;
+        private readonly Mock<IDomainEventHandler<ProductCreatedEvent>> _domainEventHandlerMock;
 
         public ProductServiceTests()
         {
             _currentUserServiceMock = new Mock<ICurrentUserService>();
             _currentUserServiceMock.Setup(x => x.UserName).Returns("TestUser");
+            _domainEventHandlerMock =
+    new Mock<IDomainEventHandler<ProductCreatedEvent>>();
 
             _currentUserServiceMock.Setup(x => x.UserId).Returns("123");
 
@@ -39,7 +43,7 @@ namespace ProductManagement.Application.Tests.Services
 
             _mapper = mapperConfig.CreateMapper();
 
-            _productService = new ProductService(_unitOfWorkMock.Object, _mapper, _currentUserServiceMock.Object);
+            _productService = new ProductService(_unitOfWorkMock.Object, _mapper, _currentUserServiceMock.Object, _domainEventHandlerMock.Object);
         }
 
         [Fact]
@@ -86,8 +90,8 @@ namespace ProductManagement.Application.Tests.Services
             };
 
             _productRepositoryMock
-                .Setup(x => x.GetByIdAsync(1))
-                .ReturnsAsync(product);
+    .Setup(x => x.GetByIdAsync(1))
+    .ReturnsAsync(product);
 
             // Act
             var result = await _productService.GetByIdAsync(1);
@@ -126,7 +130,12 @@ namespace ProductManagement.Application.Tests.Services
         [Fact]
         public async Task GetAllAsync_Should_Return_All_Products()
         {
-            // Arrange
+            var request = new PaginationRequestDto
+            {
+                PageNumber = 1,
+                PageSize = 10
+            };
+
             var products = new List<Product>
     {
         new Product
@@ -146,21 +155,25 @@ namespace ProductManagement.Application.Tests.Services
     };
 
             _productRepositoryMock
-                .Setup(x => x.GetAllAsync())
-                .ReturnsAsync(products);
+                .Setup(x => x.GetPagedAsync(It.IsAny<PaginationRequestDto>()))
+                .ReturnsAsync((products, products.Count));
 
-            // Act
-            var result = await _productService.GetAllAsync();
+            var result = await _productService.GetAllAsync(request);
 
-            // Assert
-            result.Should().HaveCount(2);
+            result.Data.Should().HaveCount(2);
 
-            result.Select(x => x.ProductName)
-                  .Should()
-                  .Contain(new[] { "Laptop", "Mouse" });
+            result.Data
+                .Select(x => x.ProductName)
+                .Should()
+                .Contain(new[] { "Laptop", "Mouse" });
+
+            result.PageNumber.Should().Be(1);
+            result.PageSize.Should().Be(10);
+            result.TotalRecords.Should().Be(2);
+            result.TotalPages.Should().Be(1);
 
             _productRepositoryMock.Verify(
-                x => x.GetAllAsync(),
+                x => x.GetPagedAsync(It.IsAny<PaginationRequestDto>()),
                 Times.Once);
         }
 

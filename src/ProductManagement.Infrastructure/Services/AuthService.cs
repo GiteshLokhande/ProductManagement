@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using ProductManagement.Application.Constants;
 using ProductManagement.Application.DTOs;
 using ProductManagement.Application.Interfaces;
 using ProductManagement.Domain.Entities;
@@ -51,7 +52,9 @@ namespace ProductManagement.Infrastructure.Services
                 Email = user.Email!
             };
 
-            var token = _jwtTokenGenerator.GenerateToken(authenticatedUser);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var token = _jwtTokenGenerator.GenerateToken(authenticatedUser, roles);
 
             var refreshToken = RefreshTokenGenerator.Generate();
 
@@ -90,6 +93,8 @@ namespace ProductManagement.Infrastructure.Services
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new ValidationException(errors);
             }
+
+            await _userManager.AddToRoleAsync(user, Roles.User);
         }
 
         public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
@@ -117,7 +122,9 @@ namespace ProductManagement.Infrastructure.Services
                 Email = user.Email!
             };
 
-            var accessToken = _jwtTokenGenerator.GenerateToken(authenticatedUser);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var accessToken = _jwtTokenGenerator.GenerateToken(authenticatedUser, roles);
 
             var newRefreshToken = RefreshTokenGenerator.Generate();
 

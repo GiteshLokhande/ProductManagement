@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using ProductManagement.Application.Interfaces;
+using ProductManagement.Domain.Events;
 using ProductManagement.Infrastructure.Data;
+using ProductManagement.Infrastructure.Events;
 using ProductManagement.Infrastructure.Identity;
 using ProductManagement.Infrastructure.Repositories;
 using ProductManagement.Infrastructure.Services;
@@ -60,6 +62,9 @@ namespace ProductManagement.Infrastructure.Extensions
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<
+    IDomainEventHandler<ProductCreatedEvent>,
+    ProductCreatedEventHandler>();
 
             return services;
         }

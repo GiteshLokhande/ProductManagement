@@ -1,784 +1,461 @@
-# \# Product Management API
+# Product Management API
 
-# 
+A production-style RESTful API built with **ASP.NET Core 8** following **Clean Architecture** principles. This project demonstrates enterprise backend development practices including JWT Authentication, Refresh Token Rotation, Role-Based Authorization, API Versioning, Global Exception Handling, Logging, Testing, Docker, and more.
 
-# A production-style RESTful Web API built with \*\*ASP.NET Core 8\*\* following \*\*Clean Architecture\*\* principles. This project demonstrates authentication, authorization, CRUD operations, API versioning, logging, testing, and containerization using industry best practices.
-
-# 
-
-# \---
-
-# 
-
-# \## 🚀 Features
-
-# 
-
-# \- RESTful Product CRUD API
-
-# \- ASP.NET Core Identity
-
-# \- JWT Authentication
-
-# \- Refresh Token Strategy
-
-# \- API Versioning
-
-# \- Global Exception Handling Middleware
-
-# \- FluentValidation
-
-# \- AutoMapper
-
-# \- Repository Pattern
-
-# \- Unit of Work Pattern
-
-# \- Entity Framework Core
-
-# \- SQL Server
-
-# \- Serilog Structured Logging
-
-# \- Swagger / OpenAPI Documentation
-
-# \- Unit Testing (xUnit + Moq + FluentAssertions)
-
-# \- Integration Testing (WebApplicationFactory)
-
-# \- Docker \& Docker Compose
-
-# 
-
-# \---
-
-# 
-
-# \# 🏗 Architecture
-
-# 
-
-# The project follows \*\*Clean Architecture\*\*.
-
-# 
-
-# ```
-
-# Solution
-
-# │
-
-# ├── src
-
-# │   ├── ProductManagement.API
-
-# │   ├── ProductManagement.Application
-
-# │   ├── ProductManagement.Domain
-
-# │   └── ProductManagement.Infrastructure
-
-# │
-
-# ├── tests
-
-# │   ├── ProductManagement.Application.Tests
-
-# │   ├── ProductManagement.Infrastructure.Tests
-
-# │   └── ProductManagement.IntegrationTests
-
-# │
-
-# ├── Dockerfile
-
-# └── docker-compose.yml
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# 🛠 Tech Stack
-
-# 
-
-# | Technology | Version |
-
-# |------------|---------|
-
-# | .NET | 8 |
-
-# | ASP.NET Core Web API | 8 |
-
-# | Entity Framework Core | 8 |
-
-# | SQL Server | 2022 |
-
-# | ASP.NET Core Identity | Latest |
-
-# | JWT | Bearer Authentication |
-
-# | AutoMapper | Latest |
-
-# | FluentValidation | Latest |
-
-# | Serilog | Latest |
-
-# | Swagger | Swashbuckle |
-
-# | xUnit | Latest |
-
-# | Moq | Latest |
-
-# | FluentAssertions | Latest |
-
-# | Docker | Latest |
-
-# 
-
-# \---
-
-# 
-
-# \# 📂 Project Structure
-
-# 
-
-# \## API
-
-# 
-
-# \- Controllers
-
-# \- Middleware
-
-# \- Services
-
-# \- Swagger Configuration
-
-# \- Program.cs
-
-# 
-
-# \## Application
-
-# 
-
-# \- DTOs
-
-# \- Interfaces
-
-# \- Services
-
-# \- Validators
-
-# \- Mapping Profiles
-
-# \- Constants
-
-# 
-
-# \## Domain
-
-# 
-
-# \- Entities
-
-# \- Exceptions
-
-# 
-
-# \## Infrastructure
-
-# 
-
-# \- DbContext
-
-# \- Entity Configurations
-
-# \- Repository
-
-# \- Unit of Work
-
-# \- Identity
-
-# \- Authentication Services
-
-# 
-
-# \## Tests
-
-# 
-
-# \- Unit Tests
-
-# \- Integration Tests
-
-# 
-
-# \---
-
-# 
-
-# \# 🔐 Authentication
-
-# 
-
-# Authentication is implemented using \*\*ASP.NET Core Identity\*\* and \*\*JWT Bearer Tokens\*\*.
-
-# 
-
-# \## Flow
-
-# 
-
-# ```
-
-# Register
-
-# &#x20;     ↓
-
-# Login
-
-# &#x20;     ↓
-
-# Access Token + Refresh Token
-
-# &#x20;     ↓
-
-# Access Protected APIs
-
-# &#x20;     ↓
-
-# Refresh Token
-
-# &#x20;     ↓
-
-# Generate New Access Token
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# 🔑 Authorization
-
-# 
-
-# Protected endpoints require JWT authentication.
-
-# 
-
-# Example:
-
-# 
-
-# ```
-
-# Authorization: Bearer <access\_token>
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# 🌐 API Versioning
-
-# 
-
-# API Versioning is implemented using URL versioning.
-
-# 
-
-# Example:
-
-# 
-
-# ```
-
-# /api/v1/Auth/login
-
-# 
-
-# /api/v1/Products
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# 📘 Swagger
-
-# 
-
-# Swagger is configured with JWT authentication.
-
-# 
+---
 
 # Features
 
-# 
+- Product CRUD Operations
+- ASP.NET Core Identity Authentication
+- JWT Access Token Authentication
+- Refresh Token Rotation
+- Role-Based Authorization (Admin/User)
+- API Versioning
+- Clean Architecture
+- Repository Pattern
+- Unit of Work Pattern
+- Entity Framework Core (Code First)
+- SQL Server
+- FluentValidation
+- AutoMapper
+- Global Exception Handling Middleware
+- Serilog Structured Logging
+- Swagger / OpenAPI Documentation
+- Pagination
+- Searching
+- Sorting
+- CORS Configuration
+- Response Compression
+- Security Headers Middleware
+- Basic Domain Events
+- Unit Testing
+- Integration Testing
+- Docker Support
+
+---
+
+# Architecture
+
+The solution follows **Clean Architecture**, separating responsibilities into independent layers.
+
+```
+ProductManagement
+│
+├── src
+│   ├── ProductManagement.API
+│   ├── ProductManagement.Application
+│   ├── ProductManagement.Domain
+│   └── ProductManagement.Infrastructure
+│
+├── tests
+│   ├── ProductManagement.Application.Tests
+│   ├── ProductManagement.Infrastructure.Tests
+│   └── ProductManagement.IntegrationTests
+│
+├── Dockerfile
+└── docker-compose.yml
+```
+
+---
+
+# Technology Stack
+
+| Technology | Version |
+|------------|---------|
+| .NET | 8 |
+| ASP.NET Core Web API | 8 |
+| Entity Framework Core | 8 |
+| SQL Server | 2022 |
+| ASP.NET Core Identity | ✔ |
+| JWT Authentication | ✔ |
+| AutoMapper | ✔ |
+| FluentValidation | ✔ |
+| Serilog | ✔ |
+| Swagger / OpenAPI | ✔ |
+| xUnit | ✔ |
+| Moq | ✔ |
+| FluentAssertions | ✔ |
+| Docker | ✔ |
+
+---
+
+# Project Structure
+
+## API
+
+- Controllers
+- Middleware
+- Swagger Configuration
+- Dependency Injection
+- Program.cs
+
+## Application
+
+- DTOs
+- Interfaces
+- Services
+- Validators
+- AutoMapper Profiles
+- Constants
+
+## Domain
+
+- Entities
+- Domain Events
+- Exceptions
+
+## Infrastructure
+
+- Entity Framework Core
+- DbContext
+- Repository Pattern
+- Unit of Work
+- Identity
+- JWT Token Generation
+- Refresh Token Management
+- Event Handlers
 
-# \- API Versioning
+## Tests
 
-# \- JWT Authorization
+- Unit Tests
+- Integration Tests
 
-# \- Request/Response Models
+---
 
-# 
+# Authentication Flow
 
-# \---
+```
+Register User
+      │
+      ▼
+ASP.NET Identity
+      │
+      ▼
+Login
+      │
+      ▼
+Generate JWT + Refresh Token
+      │
+      ▼
+Access Protected APIs
+      │
+      ▼
+Refresh Token
+      │
+      ▼
+Generate New Access Token
+```
 
-# 
+---
 
-# \# 📦 Product Endpoints
+# Authorization
 
-# 
+Role-Based Authorization has been implemented using ASP.NET Core Identity Roles.
 
-# \## Authentication
+### Roles
 
-# 
+- Admin
+- User
 
-# ```
+### Permissions
 
-# POST /api/v1/Auth/register
+| Endpoint | User | Admin |
+|----------|:----:|:-----:|
+| View Products | ✔ | ✔ |
+| Create Product | ✔ | ✔ |
+| Update Product | ✖ | ✔ |
+| Delete Product | ✖ | ✔ |
 
-# 
+---
 
-# POST /api/v1/Auth/login
+# API Versioning
 
-# 
+API Versioning is implemented using URL versioning.
 
-# POST /api/v1/Auth/refresh-token
+Example:
 
-# ```
+```
+/api/v1/Auth/login
 
-# 
+/api/v1/Products
+```
 
-# \## Products
+---
 
-# 
+# API Endpoints
 
-# ```
+## Authentication
 
-# GET /api/v1/Products
+```
+POST    /api/v1/Auth/register
 
-# 
+POST    /api/v1/Auth/login
 
-# GET /api/v1/Products/{id}
+POST    /api/v1/Auth/refresh-token
+```
 
-# 
+## Products
 
-# POST /api/v1/Products
+```
+GET     /api/v1/Products
 
-# 
+GET     /api/v1/Products/{id}
 
-# PUT /api/v1/Products/{id}
+POST    /api/v1/Products
 
-# 
+PUT     /api/v1/Products/{id}
 
-# DELETE /api/v1/Products/{id}
+DELETE  /api/v1/Products/{id}
+```
 
-# ```
+---
 
-# 
+# Pagination, Searching & Sorting
 
-# \---
+The Products API supports:
 
-# 
+### Pagination
 
-# \# 🗄 Database
+```
+GET /api/v1/Products?pageNumber=1&pageSize=10
+```
 
-# 
+### Searching
 
-# Database: SQL Server
+```
+GET /api/v1/Products?search=laptop
+```
 
-# 
+### Sorting
 
-# Main Tables
+```
+GET /api/v1/Products?sortBy=ProductName&sortOrder=asc
+```
 
-# 
+### Combined Example
 
-# \- AspNetUsers
+```
+GET /api/v1/Products?pageNumber=1&pageSize=5&search=laptop&sortBy=ProductName&sortOrder=desc
+```
 
-# \- AspNetRoles
+---
 
-# \- Product
+# Database
 
-# \- Item
+SQL Server database using Entity Framework Core Code First.
 
-# \- RefreshToken
+Main tables:
 
-# 
+- AspNetUsers
+- AspNetRoles
+- AspNetUserRoles
+- Product
+- Item
+- RefreshToken
 
-# Entity Framework Core Code First with Migrations is used.
+---
 
-# 
+# Validation
 
-# \---
+Request validation is implemented using **FluentValidation**.
 
-# 
+Examples:
 
-# \# ✅ Validation
+- Product Name Required
+- Email Validation
+- Password Validation
 
-# 
+---
 
-# Request validation is implemented using \*\*FluentValidation\*\*.
+# Global Exception Handling
 
-# 
+A custom middleware catches unhandled exceptions and returns consistent JSON error responses.
 
-# Example validations
+Example:
 
-# 
+```json
+{
+  "statusCode": 404,
+  "message": "Product with Id 10 was not found."
+}
+```
 
-# \- Product Name Required
+---
 
-# \- Email Validation
+# Logging
 
-# \- Password Validation
+Structured logging is implemented using **Serilog**.
 
-# 
+Features:
 
-# \---
+- Console Logging
+- Rolling File Logs
+- Exception Logging
 
-# 
+---
 
-# \# ⚠ Global Exception Handling
+# Security
 
-# 
+Implemented security features include:
 
-# A custom middleware handles exceptions globally and returns consistent JSON error responses.
+- JWT Authentication
+- Refresh Token Rotation
+- ASP.NET Identity Password Hashing
+- Role-Based Authorization
+- HTTPS
+- CORS Policy
+- Response Compression
+- Security Headers
 
-# 
+Security headers include:
 
-# Example
+- X-Content-Type-Options
+- X-Frame-Options
+- Referrer-Policy
+- Content-Security-Policy
+- Permissions-Policy
 
-# 
+---
 
-# ```json
+# Domain Events
 
-# {
+A lightweight Domain Events implementation has been included.
 
-# &#x20; "statusCode": 404,
+Example:
 
-# &#x20; "message": "Product with Id 10 was not found."
+- ProductCreatedEvent
+- ProductCreatedEventHandler
 
-# }
+This demonstrates how business events can be raised and handled in a decoupled manner.
 
-# ```
+---
 
-# 
+# Testing
 
-# \---
+## Unit Tests
 
-# 
+Frameworks:
 
-# \# 📋 Logging
+- xUnit
+- Moq
+- FluentAssertions
 
-# 
+Covered Scenarios:
 
-# Structured logging is implemented using \*\*Serilog\*\*.
+- Create Product
+- Get Product
+- Get Products
+- Update Product
+- Delete Product
+- Not Found Exceptions
 
-# 
+## Integration Tests
 
-# Logs are written to:
+Implemented using:
 
-# 
+- WebApplicationFactory
+- HttpClient
 
-# ```
+Covered APIs:
 
-# Logs/
+- Register
+- Login
+- Product CRUD
 
-# ```
+---
 
-# 
+# Docker
 
-# Features
+The application is fully containerized.
 
-# 
+Run:
 
-# \- Daily Rolling Files
+```bash
+docker compose up --build
+```
 
-# \- Console Logging
+Swagger:
 
-# \- Exception Logging
+```
+http://localhost:8080/swagger
+```
 
-# 
+---
 
-# \---
+# Running Locally
 
-# 
+## Clone Repository
 
-# \# 🧪 Testing
+```bash
+git clone https://github.com/<YOUR_GITHUB_USERNAME>/ProductManagement.git
+```
 
-# 
+## Restore Packages
 
-# \## Unit Tests
+```bash
+dotnet restore
+```
 
-# 
+## Apply Database Migrations
 
-# Implemented using
+```bash
+Update-Database
+```
 
-# 
+## Run Application
 
-# \- xUnit
+```bash
+dotnet run --project src/ProductManagement.API
+```
 
-# \- Moq
+Swagger
 
-# \- FluentAssertions
+```
+https://localhost:7018/swagger
+```
 
-# 
+---
 
-# Covered Scenarios
+# Performance Considerations
 
-# 
+Implemented optimizations:
 
-# \- Create Product
+- AsNoTracking() for read-only queries
+- Pagination using Skip() and Take()
+- Async/Await throughout
+- Response Compression
+- Repository Pattern
+- Unit of Work
 
-# \- Get Product
+---
 
-# \- Get All Products
+# Future Improvements
 
-# \- Update Product
+- Redis Caching
+- CQRS + MediatR
+- Background Jobs (Hangfire)
+- Azure Deployment
+- GitHub Actions CI/CD
+- Health Checks
 
-# \- Delete Product
+---
 
-# \- NotFound Exceptions
+# Screenshots
 
-# 
+Add screenshots here before submitting:
 
-# \## Integration Tests
+- Swagger UI
+- Login API
+- JWT Authentication
+- Product CRUD
+- Docker Containers
+- Unit Test Results
+- Integration Test Results
 
-# 
+---
 
-# Implemented using
-
-# 
-
-# \- WebApplicationFactory
-
-# \- HttpClient
-
-# 
-
-# Covered APIs
-
-# 
-
-# \- Register
-
-# \- Login
-
-# \- Products API
-
-# 
-
-# \---
-
-# 
-
-# \# 🐳 Docker
-
-# 
-
-# The application is fully containerized.
-
-# 
-
-# Containers
-
-# 
-
-# \- ProductManagement.API
-
-# \- SQL Server
-
-# 
-
-# Run
-
-# 
-
-# ```bash
-
-# docker compose up --build
-
-# ```
-
-# 
-
-# Swagger
-
-# 
-
-# ```
-
-# http://localhost:8080/swagger
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# ▶ Running Locally
-
-# 
-
-# \## Clone
-
-# 
-
-# ```bash
-
-# git clone https://github.com/<your-username>/ProductManagement.git
-
-# ```
-
-# 
-
-# \## Restore Packages
-
-# 
-
-# ```bash
-
-# dotnet restore
-
-# ```
-
-# 
-
-# \## Apply Migrations
-
-# 
-
-# ```bash
-
-# Update-Database
-
-# ```
-
-# 
-
-# \## Run
-
-# 
-
-# ```bash
-
-# dotnet run --project src/ProductManagement.API
-
-# ```
-
-# 
-
-# Swagger
-
-# 
-
-# ```
-
-# https://localhost:7018/swagger
-
-# ```
-
-# 
-
-# \---
-
-# 
-
-# \# 🔒 Security
-
-# 
-
-# \- JWT Authentication
-
-# \- Refresh Token Rotation
-
-# \- Password Hashing using ASP.NET Identity
-
-# \- Authorization using Bearer Tokens
-
-# \- HTTPS Enabled
-
-# 
-
-# \---
-
-# 
-
-# \# 📸 Screenshots
-
-# 
-
-# Add screenshots for:
-
-# 
-
-# \- Swagger UI
-
-# \- Login API
-
-# \- Products API
-
-# \- Docker Containers
-
-# \- Unit Test Results
-
-# \- Integration Test Results
-
-# 
-
-# \---
-
-# 
-
-# \# 🚀 Future Improvements
-
-# 
-
-# \- Role-Based Authorization
-
-# \- Pagination
-
-# \- Searching \& Filtering
-
-# \- Redis Caching
-
-# \- Response Compression
-
-# \- Health Checks
-
-# \- CI/CD Pipeline
-
-# \- Azure Deployment
-
-# 
-
-# \---
-
-# 
-
-# \# 👨‍💻 Author
-
-# 
+# Author
 
 # Gitesh Lokhande
 
@@ -791,4 +468,3 @@
 # GitHub: https://github.com/GiteshLokhande
 
 # LinkedIn: https://www.linkedin.com/in/gitesh-lokhande-0a3630222/
-

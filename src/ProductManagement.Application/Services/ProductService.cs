@@ -3,6 +3,7 @@ using ProductManagement.Application.Constants;
 using ProductManagement.Application.DTOs;
 using ProductManagement.Application.Interfaces;
 using ProductManagement.Domain.Entities;
+using ProductManagement.Domain.Events;
 using ProductManagement.Domain.Exceptions;
 
 namespace ProductManagement.Application.Services
@@ -12,15 +13,18 @@ namespace ProductManagement.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IDomainEventHandler<ProductCreatedEvent> _productCreatedEventHandler;
 
         public ProductService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+             IDomainEventHandler<ProductCreatedEvent> productCreatedEventHandler)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _currentUserService = currentUserService;
+            _productCreatedEventHandler = productCreatedEventHandler;
         }
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto)
@@ -33,6 +37,9 @@ namespace ProductManagement.Application.Services
             await _unitOfWork.Products.AddAsync(product);
 
             await _unitOfWork.SaveChangesAsync();
+
+            await _productCreatedEventHandler.HandleAsync(
+    new ProductCreatedEvent(product));
 
             return _mapper.Map<ProductDto>(product);
         }
@@ -49,11 +56,17 @@ namespace ProductManagement.Application.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ProductDto>> GetAllAsync()
+        public async Task<PagedResponse<ProductDto>> GetAllAsync(PaginationRequestDto request)
         {
-            var products = await _unitOfWork.Products.GetAllAsync();
+            var (products, totalRecords) = await _unitOfWork.Products.GetPagedAsync(request);
 
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            return new PagedResponse<ProductDto>
+            {
+                Data = _mapper.Map<IEnumerable<ProductDto>>(products),
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalRecords = totalRecords
+            };
         }
 
         public async Task<ProductDto?> GetByIdAsync(int id)

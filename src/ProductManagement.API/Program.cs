@@ -1,5 +1,7 @@
 using Asp.Versioning.ApiExplorer;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using ProductManagement.API.Middleware;
@@ -8,14 +10,39 @@ using ProductManagement.API.Swagger;
 using ProductManagement.Application.Extensions;
 using ProductManagement.Application.Interfaces;
 using ProductManagement.Infrastructure.Extensions;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using ProductManagement.Infrastructure.Identity;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.IO.Compression;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
 });
 
 builder.Services.AddControllers();
@@ -76,6 +103,14 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider
+        .GetRequiredService<RoleManager<IdentityRole>>();
+
+    await IdentitySeeder.SeedRolesAsync(roleManager);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -94,7 +129,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+app.UseResponseCompression();
+
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

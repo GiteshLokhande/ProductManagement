@@ -17,7 +17,9 @@ namespace ProductManagement.Infrastructure.Identity
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string GenerateToken(AuthenticatedUserDto user)
+        public string GenerateToken(
+    AuthenticatedUserDto user,
+    IList<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -27,6 +29,11 @@ namespace ProductManagement.Infrastructure.Identity
 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.Key));

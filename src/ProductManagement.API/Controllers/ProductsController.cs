@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProductManagement.Application.Constants;
 using ProductManagement.Application.DTOs;
 using ProductManagement.Application.Interfaces;
-using Asp.Versioning;
 
 namespace ProductManagement.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -19,13 +19,16 @@ namespace ProductManagement.API.Controllers
             _productService = productService;
         }
 
+        [Authorize(Roles = $"{Roles.Admin},{Roles.User}")]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PaginationRequestDto request)
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetAllAsync(request);
+
             return Ok(products);
         }
 
+        [Authorize(Roles = $"{Roles.Admin},{Roles.User}")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -37,6 +40,7 @@ namespace ProductManagement.API.Controllers
             return Ok(product);
         }
 
+        [Authorize(Roles = $"{Roles.Admin},{Roles.User}")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateProductDto dto)
         {
@@ -48,6 +52,7 @@ namespace ProductManagement.API.Controllers
                 product);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateProductDto dto)
         {
@@ -56,6 +61,7 @@ namespace ProductManagement.API.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
